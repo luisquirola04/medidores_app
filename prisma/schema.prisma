@@ -1,0 +1,175 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Rol {
+  usuario
+  administrador
+}
+
+enum Estado {
+  FUNCIONANDO
+  INACTIVO
+}
+
+enum Categoria {
+  comercial
+  residencial
+  sectorPublico
+}
+
+model Usuario {
+  id         Int       @id @default(autoincrement())
+  uuid        String    @unique @default(uuid())
+  name       String
+  last_names String
+  dni        Int       @unique
+  address    String
+  email      String    @unique
+  password   String
+  state      Boolean
+  rol        Rol
+  medidores  Medidor[]
+  facturas   Factura[]
+}
+
+model Medidor {
+  id             Int       @id @default(autoincrement())
+  uuid           String    @unique @default(uuid())
+  numeroMedidor  Int
+  numeroServicio Int
+  latitud        Float
+  altitud        Float
+  estado         Estado
+  usuarioId      Int
+  usuario        Usuario   @relation(fields: [usuarioId], references: [id])
+  lecturas       Lectura[]
+}
+
+model Lectura {
+  id           Int       @id @default(autoincrement())
+  uuid          String    @unique @default(uuid())
+  fecha        DateTime
+  valorConsumo Float
+  medidorId    Int
+  medidor      Medidor   @relation(fields: [medidorId], references: [id])
+}
+
+model Factura {
+  id            Int       @id @default(autoincrement())
+  uuid           String    @unique @default(uuid())
+  fechaEmision  DateTime
+  nro           Int
+  subtotal      Float
+  baseImponible Float
+  iva           Float
+  intereses     Float
+  recargos      Float
+  total         Float
+  usuarioId     Int
+  usuario       Usuario   @relation(fields: [usuarioId], references: [id])
+
+  aguaPotable           ItemAguaPotable[]
+  alcantarillado        ItemAlcantarillado[]
+  aportesPlanesMaestros ItemAportesPlanesMaestros[]
+  seguridadCiudadana    ItemSeguridadCiudadana[]
+  proteccionMicrocuencas ItemProteccionMicrocuencas[]
+  recoleccionBasura     ItemRecoleccionBasura[]
+  ajusteMesesPasados    ItemAjusteMesesPasados[]
+  costoBase             ItemCostoBase[]
+}
+
+model Tarifa {
+  id        Int       @id @default(autoincrement())
+  uuid       String    @unique @default(uuid())
+  categoria Categoria
+  aguaPotable           ItemAguaPotable[]
+}
+
+// ------------------ Items ------------------ //
+
+model ItemAguaPotable {
+  id        Int     @id @default(autoincrement())
+  uuid       String  @unique @default(uuid())
+  name      String
+  cost      String
+  facturaId Int
+  factura   Factura @relation(fields: [facturaId], references: [id])
+  tarifaId  Int
+  tarifa    Tarifa  @relation(fields: [tarifaId], references: [id])
+}
+
+model ItemAlcantarillado {
+  id        Int     @id @default(autoincrement())
+  uid       String  @unique @default(uuid())
+  name      String
+  cost      String
+  facturaId Int
+  factura   Factura @relation(fields: [facturaId], references: [id])
+
+}
+
+model ItemAportesPlanesMaestros {
+  id        Int     @id @default(autoincrement())
+  uid       String  @unique @default(uuid())
+  name      String
+  cost      String
+  facturaId Int
+  factura   Factura @relation(fields: [facturaId], references: [id])
+
+}
+
+model ItemSeguridadCiudadana {
+  id        Int     @id @default(autoincrement())
+  uid       String  @unique @default(uuid())
+  name      String
+  cost      String
+  facturaId Int
+  factura   Factura @relation(fields: [facturaId], references: [id])
+
+}
+
+model ItemProteccionMicrocuencas {
+  id        Int     @id @default(autoincrement())
+  uid       String  @unique @default(uuid())
+  name      String
+  cost      String
+  facturaId Int
+  factura   Factura @relation(fields: [facturaId], references: [id])
+
+}
+
+model ItemRecoleccionBasura {
+  id        Int     @id @default(autoincrement())
+  uid       String  @unique @default(uuid())
+  name      String
+  cost      String
+  facturaId Int
+  factura   Factura @relation(fields: [facturaId], references: [id])
+
+}
+
+model ItemAjusteMesesPasados {
+  id        Int     @id @default(autoincrement())
+  uid       String  @unique @default(uuid())
+  name      String
+  cost      String
+  facturaId Int
+  factura   Factura @relation(fields: [facturaId], references: [id])
+
+}
+
+model ItemCostoBase {
+  id        Int     @id @default(autoincrement())
+  uid       String  @unique @default(uuid())
+  name      String
+  cost      String
+  facturaId Int
+  factura   Factura @relation(fields: [facturaId], references: [id])
+
+}
